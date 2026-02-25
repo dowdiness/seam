@@ -46,7 +46,7 @@ pub impl Show for SyntaxToken with output(self, logger) {
 pub(all) enum SyntaxElement {
   Node(SyntaxNode)
   Token(SyntaxToken)
-}
+} derive(Show, Debug)
 
 ///|
 pub fn SyntaxElement::start(self : SyntaxElement) -> Int {
@@ -233,7 +233,7 @@ pub fn SyntaxNode::tight_span(
 ) -> (Int, Int) {
   let mut pos = self.offset
   let mut tight_start = self.offset
-  let mut tight_end = self.end()
+  let mut tight_end = self.offset
   let mut found_start = false
   for elem in self.cst.children {
     let len = match elem {

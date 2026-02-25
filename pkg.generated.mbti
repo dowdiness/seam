@@ -97,6 +97,8 @@ pub(all) enum SyntaxElement {
 }
 pub fn SyntaxElement::end(Self) -> Int
 pub fn SyntaxElement::start(Self) -> Int
+pub impl Show for SyntaxElement
+pub impl @debug.Debug for SyntaxElement
 
 pub struct SyntaxNode {
   cst : CstNode
