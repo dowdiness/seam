@@ -1,4 +1,12 @@
 ///|
+test "SyntaxNode Show" {
+  let tok = CstToken::new(RawKind(9), "hello")
+  let cst = CstNode::new(RawKind(20), [CstElement::Token(tok)])
+  let sn = SyntaxNode::from_cst(cst)
+  inspect(sn, content="SyntaxNode@[0,5)")
+}
+
+///|
 test "SyntaxElement wraps node and token" {
   let tok = CstToken::new(RawKind(9), "x")
   let st = SyntaxToken::new(tok, 5)

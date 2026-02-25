@@ -76,7 +76,7 @@ pub struct SyntaxNode {
   cst : CstNode
   parent : SyntaxNode?
   offset : Int
-}
+} derive(Debug(ignore=[SyntaxNode]))
 
 ///|
 /// Full constructor. `parent` is `None` for root nodes.
@@ -111,6 +111,16 @@ pub fn SyntaxNode::end(self : SyntaxNode) -> Int {
 /// The language-agnostic kind of the underlying `CstNode`.
 pub fn SyntaxNode::kind(self : SyntaxNode) -> RawKind {
   self.cst.kind
+}
+
+///|
+/// Show: compact form — "SyntaxNode@[start,end)"
+pub impl Show for SyntaxNode with output(self, logger) {
+  logger.write_string("SyntaxNode@[")
+  logger.write_string(self.start().to_string())
+  logger.write_string(",")
+  logger.write_string(self.end().to_string())
+  logger.write_string(")")
 }
 
 ///|
