@@ -161,6 +161,26 @@ test "SyntaxNode::tight_span skips leading and trailing trivia" {
 }
 
 ///|
+test "SyntaxNode::tight_span all-trivia collapses to start" {
+  let ws1 = CstToken::new(RawKind(0), " ")
+  let ws2 = CstToken::new(RawKind(0), "  ")
+  let inner = CstNode::new(RawKind(20), [
+    CstElement::Token(ws1),
+    CstElement::Token(ws2),
+  ])
+  let lead = CstToken::new(RawKind(9), "x")
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Token(lead),
+    CstElement::Node(inner),
+  ])
+  let sn = SyntaxNode::from_cst(root)
+  let child = sn.children()[0]
+  let (s, e) = child.tight_span(trivia_kind=Some(RawKind(0)))
+  inspect(s, content="1")
+  inspect(e, content="1")
+}
+
+///|
 test "SyntaxNode::children computes offsets" {
   // Build: SourceFile containing a CstToken "hello"
   let tok = CstToken::new(RawKind(9), "hello")
@@ -175,8 +195,32 @@ test "SyntaxNode::children computes offsets" {
 }
 
 ///|
-test "SyntaxNode::find_at returns self when no child covers offset" {
-  let cst = CstNode::new(RawKind(22), [])
+// Out-of-range and empty-node inputs return self without panicking.
+// Callers querying a well-formed tree should stay within root's span;
+// these tests document the fallback contract, not intended usage.
+test "SyntaxNode::find_at returns self for out-of-range offset" {
+  let tok = CstToken::new(RawKind(9), "ab")
+  let root = CstNode::new(RawKind(22), [CstElement::Token(tok)])
+  let sn = SyntaxNode::from_cst(root) // span [0, 2)
+  // offset before span
+  inspect(sn.find_at(-1).kind() == RawKind(22), content="true")
+  // offset at end (exclusive boundary)
+  inspect(sn.find_at(2).kind() == RawKind(22), content="true")
+  // offset well past end
+  inspect(sn.find_at(99).kind() == RawKind(22), content="true")
+}
+
+///|
+test "SyntaxNode::find_at returns self for empty node" {
+  let empty = CstNode::new(RawKind(22), [])
+  let sn = SyntaxNode::from_cst(empty) // span [0, 0)
+  inspect(sn.find_at(0).kind() == RawKind(22), content="true")
+}
+
+///|
+test "SyntaxNode::find_at returns self when no child node covers offset" {
+  let tok = CstToken::new(RawKind(9), "x")
+  let cst = CstNode::new(RawKind(22), [CstElement::Token(tok)])
   let sn = SyntaxNode::from_cst(cst)
   let found = sn.find_at(0)
   inspect(found.kind() == RawKind(22), content="true")

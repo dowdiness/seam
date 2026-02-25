@@ -244,12 +244,24 @@ pub fn SyntaxNode::tight_span(
     }
     pos = pos + len
   }
+  if not(found_start) {
+    return (self.offset, self.offset)
+  }
   (tight_start, tight_end)
 }
 
 ///|
-/// Deepest descendant whose span contains `offset`.
-/// Falls back to `self` if no child's span covers the offset.
+/// Deepest descendant node whose span contains `offset`.
+///
+/// Drills into the first child whose `[start, end)` covers `offset`,
+/// recursing until no deeper child matches. Returns `self` when:
+/// - no child's span covers `offset` (including empty nodes where `start == end`)
+/// - `offset` is outside this node's span entirely
+///
+/// **Out-of-range input:** if `offset < self.start()` or `offset >= self.end()`,
+/// the function returns `self` without recursing. Callers querying a
+/// well-formed tree should ensure the offset is within the root's span;
+/// out-of-range offsets will silently produce the root rather than a deep node.
 pub fn SyntaxNode::find_at(self : SyntaxNode, offset : Int) -> SyntaxNode {
   for child in self.children() {
     if child.start() <= offset && offset < child.end() {
