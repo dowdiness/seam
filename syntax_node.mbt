@@ -219,7 +219,7 @@ pub fn SyntaxNode::tokens_of_kind(
 /// Interior `CstNode` children are never treated as trivia.
 pub fn SyntaxNode::tight_span(
   self : SyntaxNode,
-  trivia_kind~ : RawKind? = None,
+  trivia_kind? : RawKind? = None,
 ) -> (Int, Int) {
   let mut pos = self.offset
   let mut tight_start = self.offset

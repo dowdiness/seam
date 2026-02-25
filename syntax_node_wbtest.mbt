@@ -98,10 +98,10 @@ test "SyntaxNode::tokens accumulates offset past skipped node" {
 test "SyntaxNode::find_token returns first matching token" {
   let ident = CstToken::new(RawKind(9), "x")
   let dot = CstToken::new(RawKind(2), ".")
-  let root = CstNode::new(
-    RawKind(22),
-    [CstElement::Token(ident), CstElement::Token(dot)],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Token(ident),
+    CstElement::Token(dot),
+  ])
   let sn = SyntaxNode::from_cst(root)
   match sn.find_token(RawKind(2)) {
     Some(t) => inspect(t.text(), content=".")
@@ -118,14 +118,11 @@ test "SyntaxNode::tokens_of_kind collects all matching tokens" {
   let plus1 = CstToken::new(RawKind(5), "+")
   let ident = CstToken::new(RawKind(9), "x")
   let plus2 = CstToken::new(RawKind(5), "+")
-  let root = CstNode::new(
-    RawKind(22),
-    [
-      CstElement::Token(plus1),
-      CstElement::Token(ident),
-      CstElement::Token(plus2),
-    ],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Token(plus1),
+    CstElement::Token(ident),
+    CstElement::Token(plus2),
+  ])
   let sn = SyntaxNode::from_cst(root)
   let ops = sn.tokens_of_kind(RawKind(5))
   inspect(ops.length(), content="2")
@@ -137,10 +134,10 @@ test "SyntaxNode::tokens_of_kind collects all matching tokens" {
 test "SyntaxNode::tight_span no trivia" {
   let t1 = CstToken::new(RawKind(9), "ab")
   let t2 = CstToken::new(RawKind(9), "cd")
-  let root = CstNode::new(
-    RawKind(22),
-    [CstElement::Token(t1), CstElement::Token(t2)],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Token(t1),
+    CstElement::Token(t2),
+  ])
   let sn = SyntaxNode::from_cst(root)
   let (s, e) = sn.tight_span()
   inspect(s, content="0")
@@ -152,14 +149,11 @@ test "SyntaxNode::tight_span skips leading and trailing trivia" {
   let ws1 = CstToken::new(RawKind(0), " ") // trivia kind = RawKind(0)
   let ident = CstToken::new(RawKind(9), "x")
   let ws2 = CstToken::new(RawKind(0), "  ")
-  let root = CstNode::new(
-    RawKind(22),
-    [
-      CstElement::Token(ws1),
-      CstElement::Token(ident),
-      CstElement::Token(ws2),
-    ],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Token(ws1),
+    CstElement::Token(ident),
+    CstElement::Token(ws2),
+  ])
   let sn = SyntaxNode::from_cst(root)
   let (s, e) = sn.tight_span(trivia_kind=Some(RawKind(0)))
   inspect(s, content="1")
@@ -194,15 +188,15 @@ test "SyntaxNode::find_at drills into deepest child" {
   let leaf_tok = CstToken::new(RawKind(9), "ab")
   let grandchild = CstNode::new(RawKind(21), [CstElement::Token(leaf_tok)])
   let child_tok = CstToken::new(RawKind(10), "c")
-  let child = CstNode::new(
-    RawKind(20),
-    [CstElement::Node(grandchild), CstElement::Token(child_tok)],
-  )
+  let child = CstNode::new(RawKind(20), [
+    CstElement::Node(grandchild),
+    CstElement::Token(child_tok),
+  ])
   let root_tok = CstToken::new(RawKind(11), "de")
-  let root = CstNode::new(
-    RawKind(22),
-    [CstElement::Node(child), CstElement::Token(root_tok)],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Node(child),
+    CstElement::Token(root_tok),
+  ])
   let sn = SyntaxNode::from_cst(root)
   // offset 1 is inside grandchild [0,2)
   inspect(sn.find_at(1).kind() == RawKind(21), content="true")
