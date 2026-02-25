@@ -168,3 +168,46 @@ pub fn SyntaxNode::tokens(self : SyntaxNode) -> Array[SyntaxToken] {
   }
   result
 }
+
+///|
+/// First direct token child matching `kind`, with its absolute offset.
+pub fn SyntaxNode::find_token(
+  self : SyntaxNode,
+  kind : RawKind,
+) -> SyntaxToken? {
+  let mut offset = self.offset
+  for elem in self.cst.children {
+    match elem {
+      CstElement::Token(tok) => {
+        if tok.kind == kind {
+          return Some(SyntaxToken::new(tok, offset))
+        }
+        offset = offset + tok.text_len()
+      }
+      CstElement::Node(child) => offset = offset + child.text_len
+    }
+  }
+  None
+}
+
+///|
+/// All direct token children matching `kind`, in source order.
+pub fn SyntaxNode::tokens_of_kind(
+  self : SyntaxNode,
+  kind : RawKind,
+) -> Array[SyntaxToken] {
+  let result : Array[SyntaxToken] = []
+  let mut offset = self.offset
+  for elem in self.cst.children {
+    match elem {
+      CstElement::Token(tok) => {
+        if tok.kind == kind {
+          result.push(SyntaxToken::new(tok, offset))
+        }
+        offset = offset + tok.text_len()
+      }
+      CstElement::Node(child) => offset = offset + child.text_len
+    }
+  }
+  result
+}

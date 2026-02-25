@@ -95,6 +95,45 @@ test "SyntaxNode::tokens accumulates offset past skipped node" {
 }
 
 ///|
+test "SyntaxNode::find_token returns first matching token" {
+  let ident = CstToken::new(RawKind(9), "x")
+  let dot = CstToken::new(RawKind(2), ".")
+  let root = CstNode::new(
+    RawKind(22),
+    [CstElement::Token(ident), CstElement::Token(dot)],
+  )
+  let sn = SyntaxNode::from_cst(root)
+  match sn.find_token(RawKind(2)) {
+    Some(t) => inspect(t.text(), content=".")
+    None => inspect("none", content=".")
+  }
+  match sn.find_token(RawKind(99)) {
+    Some(_) => inspect("found", content="none")
+    None => inspect("none", content="none")
+  }
+}
+
+///|
+test "SyntaxNode::tokens_of_kind collects all matching tokens" {
+  let plus1 = CstToken::new(RawKind(5), "+")
+  let ident = CstToken::new(RawKind(9), "x")
+  let plus2 = CstToken::new(RawKind(5), "+")
+  let root = CstNode::new(
+    RawKind(22),
+    [
+      CstElement::Token(plus1),
+      CstElement::Token(ident),
+      CstElement::Token(plus2),
+    ],
+  )
+  let sn = SyntaxNode::from_cst(root)
+  let ops = sn.tokens_of_kind(RawKind(5))
+  inspect(ops.length(), content="2")
+  inspect(ops[0].start(), content="0")
+  inspect(ops[1].start(), content="2")
+}
+
+///|
 test "SyntaxNode::children computes offsets" {
   // Build: SourceFile containing a CstToken "hello"
   let tok = CstToken::new(RawKind(9), "hello")
