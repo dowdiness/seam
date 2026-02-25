@@ -246,3 +246,15 @@ pub fn SyntaxNode::tight_span(
   }
   (tight_start, tight_end)
 }
+
+///|
+/// Deepest descendant whose span contains `offset`.
+/// Falls back to `self` if no child's span covers the offset.
+pub fn SyntaxNode::find_at(self : SyntaxNode, offset : Int) -> SyntaxNode {
+  for child in self.children() {
+    if child.start() <= offset && offset < child.end() {
+      return child.find_at(offset)
+    }
+  }
+  self
+}

@@ -179,3 +179,35 @@ test "SyntaxNode::children computes offsets" {
   inspect(children[0].start(), content="0")
   inspect(children[0].end(), content="5")
 }
+
+///|
+test "SyntaxNode::find_at returns self when no child covers offset" {
+  let cst = CstNode::new(RawKind(22), [])
+  let sn = SyntaxNode::from_cst(cst)
+  let found = sn.find_at(0)
+  inspect(found.kind() == RawKind(22), content="true")
+}
+
+///|
+test "SyntaxNode::find_at drills into deepest child" {
+  // Build: root[0,5) → child[0,3) → grandchild[0,2)
+  let leaf_tok = CstToken::new(RawKind(9), "ab")
+  let grandchild = CstNode::new(RawKind(21), [CstElement::Token(leaf_tok)])
+  let child_tok = CstToken::new(RawKind(10), "c")
+  let child = CstNode::new(
+    RawKind(20),
+    [CstElement::Node(grandchild), CstElement::Token(child_tok)],
+  )
+  let root_tok = CstToken::new(RawKind(11), "de")
+  let root = CstNode::new(
+    RawKind(22),
+    [CstElement::Node(child), CstElement::Token(root_tok)],
+  )
+  let sn = SyntaxNode::from_cst(root)
+  // offset 1 is inside grandchild [0,2)
+  inspect(sn.find_at(1).kind() == RawKind(21), content="true")
+  // offset 2 is inside child [0,3), past grandchild [0,2)
+  inspect(sn.find_at(2).kind() == RawKind(20), content="true")
+  // offset 4 is inside root only (past child [0,3))
+  inspect(sn.find_at(4).kind() == RawKind(22), content="true")
+}
