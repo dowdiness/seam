@@ -47,6 +47,29 @@ pub impl Debug for SyntaxToken with to_repr(self) {
 }
 
 ///|
+/// A child element — either an interior node or a leaf token, both positioned.
+pub(all) enum SyntaxElement {
+  Node(SyntaxNode)
+  Token(SyntaxToken)
+}
+
+///|
+pub fn SyntaxElement::start(self : SyntaxElement) -> Int {
+  match self {
+    Node(n) => n.start()
+    Token(t) => t.start()
+  }
+}
+
+///|
+pub fn SyntaxElement::end(self : SyntaxElement) -> Int {
+  match self {
+    Node(n) => n.end()
+    Token(t) => t.end()
+  }
+}
+
+///|
 /// Ephemeral positioned view over a `CstNode`.
 ///
 /// A `SyntaxNode` pairs an immutable `CstNode` with the absolute byte

@@ -1,4 +1,18 @@
 ///|
+test "SyntaxElement wraps node and token" {
+  let tok = CstToken::new(RawKind(9), "x")
+  let st = SyntaxToken::new(tok, 5)
+  let elem_tok = SyntaxElement::Token(st)
+  inspect(elem_tok.start(), content="5")
+  inspect(elem_tok.end(), content="6")
+
+  let cst = CstNode::new(RawKind(20), [])
+  let sn = SyntaxNode::from_cst(cst)
+  let elem_node = SyntaxElement::Node(sn)
+  inspect(elem_node.start(), content="0")
+}
+
+///|
 test "SyntaxNode::from_cst creates root at offset 0" {
   let cst = CstNode::new(RawKind(22), [])
   let syntax = SyntaxNode::from_cst(cst)
