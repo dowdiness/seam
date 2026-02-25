@@ -83,10 +83,10 @@ test "SyntaxNode::tokens accumulates offset past skipped node" {
   let inner_tok = CstToken::new(RawKind(10), "cd")
   let inner = CstNode::new(RawKind(20), [CstElement::Token(inner_tok)])
   let trailing = CstToken::new(RawKind(9), "ab")
-  let root = CstNode::new(
-    RawKind(22),
-    [CstElement::Node(inner), CstElement::Token(trailing)],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Node(inner),
+    CstElement::Token(trailing),
+  ])
   let sn = SyntaxNode::from_cst(root)
   let toks = sn.tokens()
   inspect(toks.length(), content="1")

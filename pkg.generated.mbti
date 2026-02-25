@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "dowdiness/seam"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn build_tree(Array[ParseEvent], RawKind, trivia_kind? : RawKind?) -> CstNode
 
@@ -47,6 +51,7 @@ pub fn CstToken::text_len(Self) -> Int
 pub impl Eq for CstToken
 pub impl Hash for CstToken
 pub impl Show for CstToken
+pub impl @debug.Debug for CstToken
 
 pub struct EventBuffer {
   // private fields
@@ -82,18 +87,40 @@ pub impl Compare for RawKind
 pub impl Eq for RawKind
 pub impl Hash for RawKind
 pub impl Show for RawKind
+pub impl @debug.Debug for RawKind
+
+pub(all) enum SyntaxElement {
+  Node(SyntaxNode)
+  Token(SyntaxToken)
+}
+pub fn SyntaxElement::end(Self) -> Int
+pub fn SyntaxElement::start(Self) -> Int
 
 pub struct SyntaxNode {
   cst : CstNode
   parent : SyntaxNode?
   offset : Int
 }
+pub fn SyntaxNode::all_children(Self) -> Array[SyntaxElement]
 pub fn SyntaxNode::children(Self) -> Array[Self]
 pub fn SyntaxNode::end(Self) -> Int
 pub fn SyntaxNode::from_cst(CstNode) -> Self
 pub fn SyntaxNode::kind(Self) -> RawKind
 pub fn SyntaxNode::new(CstNode, Self?, Int) -> Self
 pub fn SyntaxNode::start(Self) -> Int
+pub fn SyntaxNode::tokens(Self) -> Array[SyntaxToken]
+
+pub struct SyntaxToken {
+  cst : CstToken
+  offset : Int
+}
+pub fn SyntaxToken::end(Self) -> Int
+pub fn SyntaxToken::kind(Self) -> RawKind
+pub fn SyntaxToken::new(CstToken, Int) -> Self
+pub fn SyntaxToken::start(Self) -> Int
+pub fn SyntaxToken::text(Self) -> String
+pub impl Show for SyntaxToken
+pub impl @debug.Debug for SyntaxToken
 
 // Type aliases
 
