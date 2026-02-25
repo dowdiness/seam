@@ -1,4 +1,52 @@
 ///|
+/// Ephemeral positioned view over a `CstToken`.
+/// Mirrors `SyntaxNode` but for leaf tokens.
+pub struct SyntaxToken {
+  cst : CstToken
+  offset : Int
+}
+
+///|
+pub fn SyntaxToken::new(cst : CstToken, offset : Int) -> SyntaxToken {
+  { cst, offset }
+}
+
+///|
+pub fn SyntaxToken::start(self : SyntaxToken) -> Int {
+  self.offset
+}
+
+///|
+pub fn SyntaxToken::end(self : SyntaxToken) -> Int {
+  self.offset + self.cst.text_len()
+}
+
+///|
+pub fn SyntaxToken::kind(self : SyntaxToken) -> RawKind {
+  self.cst.kind
+}
+
+///|
+pub fn SyntaxToken::text(self : SyntaxToken) -> String {
+  self.cst.text
+}
+
+///|
+/// Show: compact form — "SyntaxToken@[start,end)"
+pub impl Show for SyntaxToken with output(self, logger) {
+  logger.write_string("SyntaxToken@[")
+  logger.write_string(self.start().to_string())
+  logger.write_string(",")
+  logger.write_string(self.end().to_string())
+  logger.write_string(")")
+}
+
+///|
+pub impl Debug for SyntaxToken with to_repr(self) {
+  Repr::literal("SyntaxToken@[\{self.start()},\{self.end()})")
+}
+
+///|
 /// Ephemeral positioned view over a `CstNode`.
 ///
 /// A `SyntaxNode` pairs an immutable `CstNode` with the absolute byte

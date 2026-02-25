@@ -8,6 +8,29 @@ test "SyntaxNode::from_cst creates root at offset 0" {
 }
 
 ///|
+test "SyntaxToken::start and end" {
+  let tok = CstToken::new(RawKind(9), "hello")
+  let st = SyntaxToken::new(tok, 3)
+  inspect(st.start(), content="3")
+  inspect(st.end(), content="8")
+}
+
+///|
+test "SyntaxToken::kind and text" {
+  let tok = CstToken::new(RawKind(9), "foo")
+  let st = SyntaxToken::new(tok, 0)
+  inspect(st.kind() == RawKind(9), content="true")
+  inspect(st.text(), content="foo")
+}
+
+///|
+test "SyntaxToken Show" {
+  let tok = CstToken::new(RawKind(9), "foo")
+  let st = SyntaxToken::new(tok, 3)
+  inspect(st, content="SyntaxToken@[3,6)")
+}
+
+///|
 test "SyntaxNode::children computes offsets" {
   // Build: SourceFile containing a CstToken "hello"
   let tok = CstToken::new(RawKind(9), "hello")
