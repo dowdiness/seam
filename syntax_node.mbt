@@ -134,3 +134,42 @@ pub fn SyntaxNode::children(self : SyntaxNode) -> Array[SyntaxNode] {
   }
   result
 }
+
+///|
+/// All direct children as `SyntaxElement`s, preserving token order.
+pub fn SyntaxNode::all_children(self : SyntaxNode) -> Array[SyntaxElement] {
+  let result : Array[SyntaxElement] = []
+  let mut offset = self.offset
+  for elem in self.cst.children {
+    match elem {
+      CstElement::Node(child_cst) => {
+        result.push(
+          SyntaxElement::Node(SyntaxNode::new(child_cst, Some(self), offset)),
+        )
+        offset = offset + child_cst.text_len
+      }
+      CstElement::Token(tok) => {
+        result.push(SyntaxElement::Token(SyntaxToken::new(tok, offset)))
+        offset = offset + tok.text_len()
+      }
+    }
+  }
+  result
+}
+
+///|
+/// Direct leaf tokens only (child nodes are skipped).
+pub fn SyntaxNode::tokens(self : SyntaxNode) -> Array[SyntaxToken] {
+  let result : Array[SyntaxToken] = []
+  let mut offset = self.offset
+  for elem in self.cst.children {
+    match elem {
+      CstElement::Token(tok) => {
+        result.push(SyntaxToken::new(tok, offset))
+        offset = offset + tok.text_len()
+      }
+      CstElement::Node(child) => offset = offset + child.text_len
+    }
+  }
+  result
+}
