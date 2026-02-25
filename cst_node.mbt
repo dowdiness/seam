@@ -1,7 +1,7 @@
 ///|
 /// Language-independent node kind (equivalent to rowan's RawSyntaxKind).
 /// Each language defines its own enum and converts to/from RawKind via to_raw()/from_raw().
-pub(all) struct RawKind(Int) derive(Eq, Show, Hash, Compare)
+pub(all) struct RawKind(Int) derive(Eq, Show, Hash, Compare, Debug)
 
 ///|
 /// A leaf token in the CST.
@@ -18,7 +18,7 @@ pub(all) struct CstToken {
   kind : RawKind
   text : String
   hash : Int
-} derive(Show)
+} derive(Show, Debug)
 
 ///|
 /// Create a CstToken. Hash is computed from kind and text.

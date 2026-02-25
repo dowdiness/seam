@@ -4,7 +4,7 @@
 pub struct SyntaxToken {
   cst : CstToken
   offset : Int
-}
+} derive(Debug)
 
 ///|
 pub fn SyntaxToken::new(cst : CstToken, offset : Int) -> SyntaxToken {
@@ -39,11 +39,6 @@ pub impl Show for SyntaxToken with output(self, logger) {
   logger.write_string(",")
   logger.write_string(self.end().to_string())
   logger.write_string(")")
-}
-
-///|
-pub impl Debug for SyntaxToken with to_repr(self) {
-  Repr::literal("SyntaxToken@[\{self.start()},\{self.end()})")
 }
 
 ///|
