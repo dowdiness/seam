@@ -211,3 +211,38 @@ pub fn SyntaxNode::tokens_of_kind(
   }
   result
 }
+
+///|
+/// Tight byte span of this node, skipping leading and trailing trivia tokens.
+///
+/// Pass `trivia_kind` to identify whitespace/comment tokens to skip.
+/// Interior `CstNode` children are never treated as trivia.
+pub fn SyntaxNode::tight_span(
+  self : SyntaxNode,
+  trivia_kind~ : RawKind? = None,
+) -> (Int, Int) {
+  let mut pos = self.offset
+  let mut tight_start = self.offset
+  let mut tight_end = self.end()
+  let mut found_start = false
+  for elem in self.cst.children {
+    let len = match elem {
+      CstElement::Token(t) => t.text_len()
+      CstElement::Node(n) => n.text_len
+    }
+    let contributes = match (elem, trivia_kind) {
+      (CstElement::Token(t), Some(tk)) => t.kind != tk
+      (CstElement::Token(_), None) => true
+      (CstElement::Node(_), _) => true
+    }
+    if contributes {
+      if not(found_start) {
+        tight_start = pos
+        found_start = true
+      }
+      tight_end = pos + len
+    }
+    pos = pos + len
+  }
+  (tight_start, tight_end)
+}

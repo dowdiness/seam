@@ -134,6 +134,39 @@ test "SyntaxNode::tokens_of_kind collects all matching tokens" {
 }
 
 ///|
+test "SyntaxNode::tight_span no trivia" {
+  let t1 = CstToken::new(RawKind(9), "ab")
+  let t2 = CstToken::new(RawKind(9), "cd")
+  let root = CstNode::new(
+    RawKind(22),
+    [CstElement::Token(t1), CstElement::Token(t2)],
+  )
+  let sn = SyntaxNode::from_cst(root)
+  let (s, e) = sn.tight_span()
+  inspect(s, content="0")
+  inspect(e, content="4")
+}
+
+///|
+test "SyntaxNode::tight_span skips leading and trailing trivia" {
+  let ws1 = CstToken::new(RawKind(0), " ") // trivia kind = RawKind(0)
+  let ident = CstToken::new(RawKind(9), "x")
+  let ws2 = CstToken::new(RawKind(0), "  ")
+  let root = CstNode::new(
+    RawKind(22),
+    [
+      CstElement::Token(ws1),
+      CstElement::Token(ident),
+      CstElement::Token(ws2),
+    ],
+  )
+  let sn = SyntaxNode::from_cst(root)
+  let (s, e) = sn.tight_span(trivia_kind=Some(RawKind(0)))
+  inspect(s, content="1")
+  inspect(e, content="2") // "x" is 1 char at offset 1, so end = 2
+}
+
+///|
 test "SyntaxNode::children computes offsets" {
   // Build: SourceFile containing a CstToken "hello"
   let tok = CstToken::new(RawKind(9), "hello")
