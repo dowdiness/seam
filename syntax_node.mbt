@@ -273,9 +273,18 @@ pub fn SyntaxNode::tight_span(
 /// well-formed tree should ensure the offset is within the root's span;
 /// out-of-range offsets will silently produce the root rather than a deep node.
 pub fn SyntaxNode::find_at(self : SyntaxNode, offset : Int) -> SyntaxNode {
-  for child in self.children() {
-    if child.start() <= offset && offset < child.end() {
-      return child.find_at(offset)
+  let mut pos = self.offset
+  for elem in self.cst.children {
+    match elem {
+      CstElement::Node(child_cst) => {
+        let child_end = pos + child_cst.text_len
+        if pos <= offset && offset < child_end {
+          let child = SyntaxNode::new(child_cst, Some(self), pos)
+          return child.find_at(offset)
+        }
+        pos = child_end
+      }
+      CstElement::Token(tok) => pos = pos + tok.text_len()
     }
   }
   self
