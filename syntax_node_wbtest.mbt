@@ -48,10 +48,10 @@ test "SyntaxToken Show" {
 test "SyntaxNode::all_children includes tokens and nodes" {
   let tok = CstToken::new(RawKind(9), "hi")
   let inner = CstNode::new(RawKind(20), [])
-  let root = CstNode::new(
-    RawKind(22),
-    [CstElement::Token(tok), CstElement::Node(inner)],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Token(tok),
+    CstElement::Node(inner),
+  ])
   let sn = SyntaxNode::from_cst(root)
   let children = sn.all_children()
   inspect(children.length(), content="2")
@@ -65,15 +65,33 @@ test "SyntaxNode::tokens returns only leaf tokens with offsets" {
   let t1 = CstToken::new(RawKind(9), "ab")
   let t2 = CstToken::new(RawKind(10), "cd")
   let inner = CstNode::new(RawKind(20), [CstElement::Token(t2)])
-  let root = CstNode::new(
-    RawKind(22),
-    [CstElement::Token(t1), CstElement::Node(inner)],
-  )
+  let root = CstNode::new(RawKind(22), [
+    CstElement::Token(t1),
+    CstElement::Node(inner),
+  ])
   let sn = SyntaxNode::from_cst(root)
   let toks = sn.tokens()
   inspect(toks.length(), content="1")
   inspect(toks[0].text(), content="ab")
   inspect(toks[0].start(), content="0")
+}
+
+///|
+test "SyntaxNode::tokens accumulates offset past skipped node" {
+  // Structure: root[ node("cd"), token("ab") ]
+  // tokens() skips the node (text_len=2) then yields "ab" at offset 2
+  let inner_tok = CstToken::new(RawKind(10), "cd")
+  let inner = CstNode::new(RawKind(20), [CstElement::Token(inner_tok)])
+  let trailing = CstToken::new(RawKind(9), "ab")
+  let root = CstNode::new(
+    RawKind(22),
+    [CstElement::Node(inner), CstElement::Token(trailing)],
+  )
+  let sn = SyntaxNode::from_cst(root)
+  let toks = sn.tokens()
+  inspect(toks.length(), content="1")
+  inspect(toks[0].text(), content="ab")
+  inspect(toks[0].start(), content="2")
 }
 
 ///|
